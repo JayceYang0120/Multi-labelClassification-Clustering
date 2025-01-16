@@ -1,0 +1,19 @@
+# ignore the ".venv" folder
+.venv/
+
+# ignore the "__pycache__" folder
+__pycache__/
+
+# ignore the "models" folder
+models/
+
+# ignore all subfolder in "assets" folder
+assets/ClusteringResult/
+assets/Kmeans/
+assets/Agglomerative/
+assets/DBSCAN/
+assets/GMM
+assets/FeatureImportance/
+assets/RandomForest/
+assets/SVM/
+assets/LinearSVM/
