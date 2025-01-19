@@ -8,7 +8,7 @@ __pycache__/
 models/
 
 # ignore all subfolder in "assets" folder
-assets/ClusteringResult/
+assets/CrossValidation/
 assets/Kmeans/
 assets/Agglomerative/
 assets/DBSCAN/
@@ -17,3 +17,7 @@ assets/FeatureImportance/
 assets/RandomForest/
 assets/SVM/
 assets/LinearSVM/
+assets/NaiveBayes/
+assets/KNN/
+assets/DecisionTree/
+assets/Oversampling/

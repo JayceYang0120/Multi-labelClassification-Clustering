@@ -153,7 +153,7 @@ class Cluster():
     def __visualizeSingle(self, method, dirPath, confusionMatrixList):
         self.visualizer = Visualizer(self.k_clusters, self.eps, method, dirPath)
         self.visualizer.visualization_ConfusionMatrix(confusionMatrixList)
-        if method == "Hierarchical":
+        if method == "Agglomerative":
             self.visualizer.visualization_Dendrogram(self.pipeline.named_steps['preprocessor'].transform(self.trainingSet))
     
     def bestCluster(self, method, param):
@@ -185,9 +185,12 @@ class Cluster():
         predictions_representations = [representations[label] for label in labels]
         predictions_binary = self.mlb.transform([[pred] for pred in predictions_representations])
         confusionMatrixList = multilabel_confusion_matrix(self.y_true, predictions_binary)
+        """
+        ignore macro F1 score in clustering
         macro_f1 = f1_score(self.y_true, predictions_binary, average='macro')
         print(f"Macro F1: {macro_f1}")
-
+        """
+        
         print(f"Silhouette Score: {silhouetteScore}")
         self.__evaluateSingle(self.y_true.reshape(-1), predictions_binary.reshape(-1))
         self.__visualizeSingle(method, dirPath, confusionMatrixList)

@@ -8,6 +8,7 @@ from preprocessing import Preprocessing
 from classifier import Classifier
 from evaluator import Evaluator
 from cluster import Cluster
+from sampler import Sampler
 
 """
 explanation of features from spofify API documentation
@@ -36,7 +37,7 @@ def read_csv(csvFile):
 def main():
 
     """##############################################"""
-    """
+    """step1.
     initial setup, lncluding reading and check dataframe with differnet columns
     """
     dirPath = "./data/"
@@ -47,7 +48,7 @@ def main():
     """##############################################"""
 
     """##############################################"""
-    """
+    """step2.
     remove the columns that are not needed
     """
     drop_columns = ["uri", "track_href", "analysis_url", "type", "song_name", "Unnamed: 0", "title"]
@@ -55,7 +56,7 @@ def main():
     """##############################################"""
 
     """##############################################"""
-    """
+    """step3.
     create an instance of the class checker to check the columns
     """
     checker = Checker(df)
@@ -66,7 +67,7 @@ def main():
     """##############################################"""
 
     """##############################################"""
-    """
+    """step4.
     data cleaning, including groupby and multi-label encoding
     """
     cleaner = Cleaner(df, outliers) # size of cleaner.df = 35877 rows
@@ -74,7 +75,7 @@ def main():
     """##############################################"""
 
     """##############################################"""
-    """
+    """step5.
     data splitting
     """
     splitter = Splitter(df_cleaned)
@@ -87,7 +88,7 @@ def main():
     """##############################################"""
 
     """##############################################"""
-    """
+    """step6.
     data preprocessing, including normalization and one-hot encoding with preprocessor
     """
     preprocessing = Preprocessing()
@@ -95,35 +96,47 @@ def main():
     """##############################################"""
 
     """##############################################"""
-    """
+    """step7.
     classification
     """
     classifier = Classifier(preprocessor, X_train, y_train)
     classifier.randomForest()
     classifier.SVM()
     classifier.linearSVM()
+    classifier.DecisionTree()
+    classifier.NaiveBayes()
+    classifier.KNN()
     pipeline_rf = classifier.getPipeline('RandomForest')
     pipeline_SVM = classifier.getPipeline('SVM')
     pipeline_linearSVM = classifier.getPipeline('LinearSVM')
+    pipeline_DecisionTree = classifier.getPipeline('DecisionTree')
+    pipeline_NaiveBayes = classifier.getPipeline('NaiveBayes')
+    pipeline_KNN = classifier.getPipeline('KNN')
     # classifier.getFeatureImportance(pipeline_rf, 'RandomForest')
     # classifier.getFeatureImportance(pipeline_linearSVM, 'LinearSVM')
     """##############################################"""
 
     """##############################################"""
-    """
+    """step8.
     evaluation
     """
     evaluator = Evaluator(X_test, y_test)
     # evaluator.evaluate(pipeline_rf, 'RandomForest')
     # evaluator.evaluate(pipeline_SVM, 'SVM')
     # evaluator.evaluate(pipeline_linearSVM, 'LinearSVM')
+    # evaluator.evaluate(pipeline_DecisionTree, 'DecisionTree')
+    # evaluator.evaluate(pipeline_NaiveBayes, 'NaiveBayes')
+    # evaluator.evaluate(pipeline_KNN, 'KNN')
     # evaluator.permutationImportance(pipeline_rf, 'RandomForest')
     # evaluator.permutationImportance(pipeline_SVM, 'SVM')
     # evaluator.permutationImportance(pipeline_linearSVM, 'LinearSVM')
+    # evaluator.permutationImportance(pipeline_DecisionTree, 'DecisionTree')
+    # evaluator.permutationImportance(pipeline_NaiveBayes, 'NaiveBayes')
+    # evaluator.permutationImportance(pipeline_KNN, 'KNN')
     """##############################################"""
 
     """##############################################"""
-    """
+    """step9.
     clustering and evaluation
     """
     cluster = Cluster(preprocessor, trainingSet, validationSet, df=None, genreList=None)
@@ -142,7 +155,7 @@ def main():
     """##############################################"""
 
     """##############################################"""
-    """
+    """step10.
     feature selection and clustering
     """
     columns_selected_rf = ["tempo", "duration_ms", "instrumentalness", "danceability", "energy", "loudness", "acousticness", "speechiness"]
@@ -168,10 +181,19 @@ def main():
     bestParam_Agglomerative = paraList[1]
     bestParam_DBSCAN = paraList[2]
     bestParam_GMM = paraList[3]
-    cluster.bestCluster("Kmeans", bestParam_Kmeans)
-    cluster.bestCluster("Agglomerative", bestParam_Agglomerative)
-    cluster.bestCluster("DBSCAN", bestParam_DBSCAN)
-    cluster.bestCluster("GMM", bestParam_GMM)
+    # cluster.bestCluster("Kmeans", bestParam_Kmeans)
+    # cluster.bestCluster("Agglomerative", bestParam_Agglomerative)
+    # cluster.bestCluster("DBSCAN", bestParam_DBSCAN)
+    # cluster.bestCluster("GMM", bestParam_GMM)
+    """##############################################"""
+
+    """##############################################"""
+    """step11.
+    Oversampling, duplication with minority class
+    Note: little problem with oversamplig with multi-label classificaion task, pls ignore this region
+    """
+    # sampler = Sampler(splitter)
+    # sampler.overSampling()
     """##############################################"""
 if __name__ == "__main__":
     main()

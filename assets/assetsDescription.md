@@ -8,3 +8,6 @@
 --RandomForest  
 --SVM  
 --LinearSVM  
+--KNN
+--DecisionTree
+--Bayes

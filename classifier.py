@@ -4,6 +4,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import SVC, LinearSVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 from joblib import dump, load
 import pandas as pd
@@ -23,6 +26,9 @@ class Classifier:
     model_rf = None
     model_SVM = None
     model_linearSVM = None
+    model_decisionTree = None
+    model_naiveBayes = None
+    model_knn = None
 
     def __init__(self, preprocessor, X_train, y_train):
         self.preprocessor = preprocessor
@@ -153,15 +159,138 @@ class Classifier:
             print(f"Model saved as 'linearSVM_model.joblib'")
         print(f"linear support vector machine classifier done")
 
+    def DecisionTree(self):
+        """
+        decision tree classifier
+        args:
+            --None
+        return:
+            --None
+        """
+        try:
+            self.model_decisionTree = load('models/DecisionTree_model.joblib')
+            print(f"Model loaded from 'decision_tree_model.joblib'")
+        except:
+            dt = DecisionTreeClassifier(random_state=42, class_weight='balanced')
+            param_grid = {
+                'classifier__max_depth': [None, 10, 20, 30],
+                'classifier__criterion': ['gini', 'log_loss'],
+                'classifier__splitter': ['best', 'random'],
+            }
+
+            self.pipeline = Pipeline(steps=[
+                ('preprocessor', self.preprocessor),
+                ('classifier', dt)
+            ])
+
+            grid_search = GridSearchCV(self.pipeline, param_grid, cv=3, scoring='f1_weighted')
+            grid_search.fit(self.X_train, self.y_train)
+
+            print("Best hyperparameters:", grid_search.best_params_)
+            print("Best cross-validation score:", grid_search.best_score_)
+
+            self.model_decisionTree = grid_search.best_estimator_
+            self.model_decisionTree.fit(self.X_train, self.y_train)
+
+            dump(self.model_decisionTree, 'models/DecisionTree_model.joblib')
+            print(f"Model saved as 'decision_tree_model.joblib'")
+        print(f"decision tree classifier done")
+
+    def NaiveBayes(self):
+        """
+        naive bayes classifier
+        args:
+            --None
+        return:
+            --None
+        """
+        try:
+            self.model_naiveBayes = load('models/NaiveBayes_model.joblib')
+            print(f"Model loaded from 'naive_bayes_model.joblib'")
+        except:
+            nb = GaussianNB()
+            ovr = OneVsRestClassifier(nb)
+            param_grid = {
+                'classifier__estimator__var_smoothing': [1e-9, 1e-8, 1e-7, 1e-6],
+            }
+
+            self.pipeline = Pipeline(steps=[
+                ('preprocessor', self.preprocessor),
+                ('classifier', ovr)
+            ])
+
+            grid_search = GridSearchCV(self.pipeline, param_grid, cv=3, scoring='f1_weighted')
+            grid_search.fit(self.X_train, self.y_train)
+
+            print("Best hyperparameters:", grid_search.best_params_)
+            print("Best cross-validation score:", grid_search.best_score_)
+
+            self.model_naiveBayes = grid_search.best_estimator_
+            self.model_naiveBayes.fit(self.X_train, self.y_train)
+
+            dump(self.model_naiveBayes, 'models/NaiveBayes_model.joblib')
+            print(f"Model saved as 'naive_bayes_model.joblib'")
+        print(f"naive bayes classifier done")
+
+    def KNN(self):
+        """
+        K-nearest neighbors classifier
+        args:
+            --None
+        return:
+            --None
+        """
+        try:
+            self.model_knn = load('models/KNN_model.joblib')
+            print(f"Model loaded from 'KNN_model.joblib'")
+        except:
+            knn = KNeighborsClassifier(weights='distance')
+            ovr = OneVsRestClassifier(knn)
+            param_grid = {
+                'classifier__estimator__n_neighbors': [3, 5, 7, 9, 11, 13, 15, 17],
+            }
+
+            self.pipeline = Pipeline(steps=[
+                ('preprocessor', self.preprocessor),
+                ('classifier', ovr)
+            ])
+
+            grid_search = GridSearchCV(self.pipeline, param_grid, cv=3, scoring='f1_weighted')
+            grid_search.fit(self.X_train, self.y_train)
+
+            print("Best hyperparameters:", grid_search.best_params_)
+            print("Best cross-validation score:", grid_search.best_score_)
+
+            self.model_knn = grid_search.best_estimator_
+            self.model_knn.fit(self.X_train, self.y_train)
+
+            dump(self.model_knn, 'models/KNN_model.joblib')
+            print(f"Model saved as 'KNN_model.joblib'")
+        print(f"K-nearest neighbors classifier done")
+
     def getPipeline(self, modelName):
+        pipeline = None
         if modelName == 'RandomForest':
-            return self.model_rf
+            pipeline = self.model_rf
+            self.model_rf = None
         elif modelName == 'SVM':
-            return self.model_SVM
+            pipeline = self.model_SVM
+            self.model_SVM = None
         elif modelName == 'LinearSVM':
-            return self.model_linearSVM
+            pipeline = self.model_linearSVM
+            self.model_linearSVM = None
+        elif modelName == 'DecisionTree':
+            pipeline = self.model_decisionTree
+            self.model_decisionTree = None
+        elif modelName == 'NaiveBayes':
+            pipeline = self.model_naiveBayes
+            self.model_naiveBayes = None
+        elif modelName == 'KNN':
+            pipeline = self.model_knn
+            self.model_knn = None
         else:
             raise ValueError(f"Model name {modelName} is not valid")
+        return pipeline
     
     def getFeatureImportance(self, model, modelName):
         """

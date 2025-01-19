@@ -2,9 +2,10 @@ from sklearn.metrics import accuracy_score, f1_score
 from sklearn.metrics import multilabel_confusion_matrix, ConfusionMatrixDisplay
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.inspection import permutation_importance
-from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
+import seaborn as sns
 import pandas as pd
+import numpy as np
 
 class Evaluator:
     
@@ -47,6 +48,32 @@ class Evaluator:
 
         macro_f1 = f1_score(self.y_test, y_pred, average='macro')
         print(f"Macro F1: {macro_f1}")
+
+        """
+        test region for co-occurrence confusion matrix, it seems that the co-occurrence matrix is not suitable.
+        """
+        """
+        # confusion matrix for overall classes(co-occurrence)
+        # [i, j] means the number of samples that are labeled as class i and predicted as class j
+        n_classes = self.y_test.shape[1]
+        confusionMatrix_all = np.zeros((n_classes, n_classes), dtype=int)
+        for i in range(n_classes):
+            for j in range(n_classes):
+                confusionMatrix_all[i, j] = np.sum((self.y_test[:, i] == 1) & (y_pred[:, j] == 1))
+
+        class_labels = [f"Class {i}" for i in range(n_classes)]
+        confusion_df = pd.DataFrame(confusionMatrix_all, index=class_labels, columns=class_labels)
+        # print("Multi-label Confusion Matrix (Co-occurrence):")
+        # print(confusion_df)
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(confusion_df, annot=True, fmt=".2f", cmap="Blues", cbar=True)
+        plt.title(f"Confusion Matrix for Multi-Label Classification with {modelName}")
+        plt.ylabel(f"True Label")
+        plt.xlabel(f"Predicted Label")
+        plt.savefig(f"assets/{modelName}/confusionMatrix_{modelName}_all.png")
+        # plt.show()
+        plt.close()
+        """
 
         confusion_matrices = multilabel_confusion_matrix(self.y_test, y_pred)
 

@@ -76,4 +76,10 @@ Note: using column "genre" as ground truth.
 
 ### 3. Linear SVM
 
-### 4. Feature Importance
+### 4. Decision Tree
+
+### 5. Naive Bayes
+
+### 6. KNN
+
+### 7. Feature Importance
